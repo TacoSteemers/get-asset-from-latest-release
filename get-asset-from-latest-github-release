@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -euo pipefail
+
+ARG_REPO='';
+ARG_ASSET='';
+ARG_OUTPUT_PATH='';
+while getopts "r:o:a:" option; do
+   case "$option" in
+       r) ARG_REPO=${OPTARG};;
+       a) ARG_ASSET=${OPTARG};;
+       o) ARG_OUTPUT_PATH=${OPTARG}
+   esac
+done
+
+
+EXIT_MSG_POSTFIX="Example call:\nget-latest-release -r https://github.com/plantuml/plantuml -a plantuml.jar -o ~/bin/plantuml.jar\n. Exiting.\n";
+if [ -z "$ARG_REPO" ]; 
+then printf "Failed to pass the repo's Github URL with the -r argument. $EXIT_MSG_POSTFIX"; exit 1;
+fi
+if [ -z "$ARG_ASSET" ]; 
+then printf "Failed to pass the asset name with the -a argument. $EXIT_MSG_POSTFIX"; exit 1;
+fi
+if [ -z "$ARG_OUTPUT_PATH" ]; 
+then printf "Failed to pass the download output path with the -o argument. $EXIT_MSG_POSTFIX"; exit 1;
+fi
+
+#printf "Argument ARG_REPO is %s\n" "$ARG_REPO"
+#printf "Argument ARG_OUTPUT_PATH is %s\n" "$ARG_OUTPUT_PATH"
+
+URL=$(python3 get-latest-released-asset-url-from-github.py $ARG_REPO $ARG_ASSET);
+printf "Downloading from $URL to $ARG_OUTPUT_PATH\n"
+curl -o $ARG_OUTPUT_PATH -L $URL;
+
